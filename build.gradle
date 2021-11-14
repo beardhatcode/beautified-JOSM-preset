@@ -82,11 +82,7 @@ updatePot.group = 'preset utils'
 updatePot.description = 'Update the translation template'
 
 task updateTranslations(type: Exec) {
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'tx.exe', 'pull', '-a'
-    } else {
-        commandLine 'tx', 'pull', '-a'
-    }
+        commandLine 'true'
 }
 updateTranslations.group = 'transifex'
 updateTranslations.description = 'Update translations by executing the transifex tx utility'
@@ -182,7 +178,7 @@ task josmZip(dependsOn: ["generateAndValidateJosm"], type: Zip) {
 josmZip.group = 'preset'
 josmZip.description = 'Generate zipped preset file for JOSM'
 
-def loadProperties = { filename -> 
+def loadProperties = { filename ->
     def properties = new Properties()
     file(filename).withInputStream {
         properties.load(it)
@@ -313,7 +309,7 @@ task replaceVersion {
         fileset(dir: '.', includes: 'master_preset.xml')
     }
 }
-  
+
 task recolour {
     group "Icons"
     description "recolour svg icons"
@@ -328,7 +324,7 @@ task recolour {
             emergency: '#CE2029',
             food: '#734A08',
             health: '#DA0092',
-            highway: '#666666', 
+            highway: '#666666',
             indoor: '#000000',
             landuse: '#999999',
             money: '#000000',
@@ -338,14 +334,14 @@ task recolour {
             office: '#ff3333',
             osm: '#000000',
             place_of_worship: '#000000',
-            poi: '#000000',    
+            poi: '#000000',
             power: '#8e7409',
             shopping: '#AC39AC',
             sport: '#39AC39',
             tourist: '#734A08',
             transport: '#0092DA',
             water: '#0092DA'
-        ] 
+        ]
         String[] sources = ["svg-osmic","svg-sjjb","svg-osm-icons"]
         sources.each { source ->
             new File("$projectDir/icons/$source").eachDir { category ->
@@ -355,13 +351,13 @@ task recolour {
                     from "$category"
                     into 'build/icons/recoloured'
                     filteringCharset = 'UTF-8'
-                    rename '(.*)', categoryName+'_$0'  
+                    rename '(.*)', categoryName+'_$0'
                     String colour = colours.get(categoryName)
                     String c1 = colour;
                     String c2 = colour;
                     String c3 = '#ffffff';
                     filter {
-                        String line -> 
+                        String line ->
                             line = line.replaceAll('(?i)fill:#111111', 'fill:' + c1)
                             line = line.replaceAll('(?i)fill:#111;', 'fill:' + c1 + ';')
                             line = line.replaceAll('(?i)stroke:#eeeeee', 'stroke:' + c2)
@@ -384,17 +380,17 @@ task recolour {
         }
     }
 }
-    
+
 task generatePngs (dependsOn: ["recolour"]) {
     group "Icons"
     description "generate PNGs from, potentially recoloured, SVG files"
-    
+
     doLast {
         String[] svgDirs = ["build/icons/recoloured/", "icons/svg-signs/", "icons/svg-roofs/"]
         def windows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
         svgDirs.each { svgDir ->
             logger.info("Creating PNGs for icons in $svgDir")
-            def size = svgDir.contains("roof") ? 56 : 48 // hack alert          
+            def size = svgDir.contains("roof") ? 56 : 48 // hack alert
             fileTree(dir: svgDir).each { svg ->
                 String fileName = svg.getName().replace('.svg','.png');
                 exec {
